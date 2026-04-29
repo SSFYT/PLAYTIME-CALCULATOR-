@@ -1,157 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSFYT Playtime Calculator</title>
+    <title>SSFYT - Crown Tracker Pro</title>
     <style>
-        :root {
-            --primary: #ffcc00;
-            --dark-bg: #121212;
-            --card-bg: #1e1e1e;
-            --text: #ffffff;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 500px;
-        }
-        h2 { color: var(--primary); text-align: center; margin-bottom: 25px; }
-        .map-entry {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border-left: 5px solid var(--primary);
-            position: relative;
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
-        label { display: block; font-size: 0.9rem; margin-bottom: 5px; color: #bbb; }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            border: 1px solid #333;
-            background: #2a2a2a;
-            color: #fff;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        button {
-            flex: 1;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .add-btn { background: #28a745; color: white; margin-bottom: 20px; width: 100%; }
+        :root { --primary: #ffcc00; --bg: #0f0f0f; --card: #1a1a1a; }
+        body { font-family: sans-serif; background: var(--bg); color: #fff; padding: 15px; }
+        .header { text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; }
+        .map-card { background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 15px; position: relative; border: 1px solid #333; }
+        input { width: 100%; padding: 10px; margin: 8px 0; background: #252525; border: 1px solid #444; color: #fff; border-radius: 5px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .add-btn { background: #2196F3; color: white; }
         .calc-btn { background: var(--primary); color: #000; font-size: 1.1rem; }
-        .remove-btn {
-            background: #dc3545;
-            color: white;
-            width: 30px;
-            height: 30px;
-            padding: 0;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            border-radius: 50%;
-        }
-        .result-box {
-            background: #252525;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 25px;
-            text-align: center;
-            border: 2px dashed var(--primary);
-        }
-        .result-val { font-size: 2rem; color: var(--primary); display: block; font-weight: bold; }
-        .target-info { font-size: 0.8rem; color: #888; margin-top: 5px; }
+        .clear-btn { background: #444; color: #fff; opacity: 0.7; }
+        .remove-btn { position: absolute; right: 10px; top: 10px; background: #f44336; border: none; color: white; border-radius: 50%; width: 25px; height: 25px; }
+        .result-section { background: #222; padding: 20px; border-radius: 10px; text-align: center; margin-top: 20px; }
+        .progress-container { width: 100%; background: #444; border-radius: 10px; height: 10px; margin: 15px 0; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: var(--primary); transition: 0.5s; }
+        .highlight { color: var(--primary); font-size: 1.5rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>Creator Crown Tracker</h2>
-        
-        <div id="map-list">
-            <div class="map-entry">
-                <label>Map Name (Optional)</label>
-                <input type="text" placeholder="e.g. Escape the Tsunami">
-                <label>Total Players (Last 30 Days)</label>
-                <input type="number" class="players" placeholder="0" min="0">
-                <label>Avg Playtime (Minutes)</label>
-                <input type="number" class="avg-time" placeholder="0" step="0.1" min="0">
-            </div>
-        </div>
+    <div class="header">
+        <h1>SSFYT Creator Tool</h1>
+        <p>Target: 1,00,000 Playtime Hours</p>
+    </div>
 
-        <button class="add-btn" onclick="addMapSlot()">+ Add More Map Slot</button>
-        <button class="calc-btn" onclick="calculateTotal()">Calculate Total Hours</button>
-
-        <div class="result-box">
-            <span style="color: #bbb;">Total Monthly Playtime:</span>
-            <span id="total-hours" class="result-val">0 Hours</span>
-            <p id="status-msg" class="target-info">Target for Crown: 1,00,000 Hours</p>
+    <div id="map-container">
+        <div class="map-card">
+            <input type="text" placeholder="Map Ka Naam" class="map-name">
+            <input type="number" placeholder="Total Players (30 Days)" class="players" oninput="calculate()">
+            <input type="number" placeholder="Avg Playtime (Minutes)" class="avg-time" oninput="calculate()">
         </div>
     </div>
 
+    <button class="btn add-btn" onclick="addSlot()">+ Naya Map Add Karein</button>
+    <button class="btn clear-btn" onclick="clearData()">Data Clear Karein</button>
+
+    <div class="result-section">
+        <p>Aapka Total Playtime:</p>
+        <span id="total-display" class="highlight">0.00</span> <span style="color:var(--primary)">Hours</span>
+        
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <p id="percent-text" style="font-size: 0.8rem; color: #aaa;">Progress: 0%</p>
+    </div>
+
     <script>
-        function addMapSlot() {
-            const list = document.getElementById('map-list');
+        function addSlot() {
+            const container = document.getElementById('map-container');
             const div = document.createElement('div');
-            div.className = 'map-entry';
+            div.className = 'map-card';
             div.innerHTML = `
-                <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
-                <label>Map Name (Optional)</label>
-                <input type="text" placeholder="Map Name">
-                <label>Total Players (Last 30 Days)</label>
-                <input type="number" class="players" placeholder="0" min="0">
-                <label>Avg Playtime (Minutes)</label>
-                <input type="number" class="avg-time" placeholder="0" step="0.1" min="0">
+                <button class="remove-btn" onclick="this.parentElement.remove(); calculate()">×</button>
+                <input type="text" placeholder="Map Ka Naam" class="map-name">
+                <input type="number" placeholder="Total Players (30 Days)" class="players" oninput="calculate()">
+                <input type="number" placeholder="Avg Playtime (Minutes)" class="avg-time" oninput="calculate()">
             `;
-            list.appendChild(div);
+            container.appendChild(div);
         }
 
-        function calculateTotal() {
-            const players = document.getElementsByClassName('players');
-            const avgTimes = document.getElementsByClassName('avg-time');
-            let totalMinutes = 0;
+        function calculate() {
+            const players = document.querySelectorAll('.players');
+            const avgs = document.querySelectorAll('.avg-time');
+            let totalMins = 0;
 
-            for (let i = 0; i < players.length; i++) {
-                let pCount = parseFloat(players[i].value) || 0;
-                let aTime = parseFloat(avgTimes[i].value) || 0;
-                totalMinutes += (pCount * aTime);
-            }
+            players.forEach((p, index) => {
+                const pVal = parseFloat(p.value) || 0;
+                const aVal = parseFloat(avgs[index].value) || 0;
+                totalMins += (pVal * aVal);
+            });
 
-            let totalHours = (totalMinutes / 60).toFixed(2);
-            document.getElementById('total-hours').innerText = Number(totalHours).toLocaleString() + " Hours";
+            const totalHours = (totalMins / 60).toFixed(2);
+            document.getElementById('total-display').innerText = parseFloat(totalHours).toLocaleString();
 
-            // Status Check
-            const msg = document.getElementById('status-msg');
-            if (totalHours >= 100000) {
-                msg.innerText = "🎉 Congratulations! You hit the Crown Target!";
-                msg.style.color = "#28a745";
-            } else {
-                let remaining = (100000 - totalHours).toFixed(2);
-                msg.innerText = "Still need " + Number(remaining).toLocaleString() + " hours for Creator Crown.";
-                msg.style.color = "#888";
+            // Progress Bar Logic
+            const target = 100000;
+            const percent = Math.min((totalHours / target) * 100, 100).toFixed(1);
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('percent-text').innerText = `Progress: ${percent}% (Goal: 1,00,000 Hours)`;
+            
+            // Save to LocalStorage
+            saveData();
+        }
+
+        function saveData() {
+            const data = [];
+            const cards = document.querySelectorAll('.map-card');
+            cards.forEach(card => {
+                data.push({
+                    name: card.querySelector('.map-name').value,
+                    p: card.querySelector('.players').value,
+                    a: card.querySelector('.avg-time').value
+                });
+            });
+            localStorage.setItem('ssfy_data', JSON.stringify(data));
+        }
+
+        function clearData() {
+            if(confirm("Kya aap saara data delete karna chahte hain?")) {
+                localStorage.removeItem('ssfy_data');
+                location.reload();
             }
         }
+
+        // Load data on start
+        window.onload = () => {
+            const saved = localStorage.getItem('ssfy_data');
+            if(saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('map-container').innerHTML = '';
+                data.forEach((item, index) => {
+                    const container = document.getElementById('map-container');
+                    const div = document.createElement('div');
+                    div.className = 'map-card';
+                    div.innerHTML = `
+                        ${index > 0 ? '<button class="remove-btn" onclick="this.parentElement.remove(); calculate()">×</button>' : ''}
+                        <input type="text" placeholder="Map Ka Naam" class="map-name" value="${item.name}">
+                        <input type="number" placeholder="Total Players (30 Days)" class="players" value="${item.p}" oninput="calculate()">
+                        <input type="number" placeholder="Avg Playtime (Minutes)" class="avg-time" value="${item.a}" oninput="calculate()">
+                    `;
+                    container.appendChild(div);
+                });
+                calculate();
+            }
+        };
     </script>
-
 </body>
 </html>
