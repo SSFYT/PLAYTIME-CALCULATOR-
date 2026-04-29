@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSFYT Playtime Calculator</title>
+    <style>
+        :root {
+            --primary: #ffcc00;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+        h2 { color: var(--primary); text-align: center; margin-bottom: 25px; }
+        .map-entry {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--primary);
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
+        label { display: block; font-size: 0.9rem; margin-bottom: 5px; color: #bbb; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: #2a2a2a;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .add-btn { background: #28a745; color: white; margin-bottom: 20px; width: 100%; }
+        .calc-btn { background: var(--primary); color: #000; font-size: 1.1rem; }
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border-radius: 50%;
+        }
+        .result-box {
+            background: #252525;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            text-align: center;
+            border: 2px dashed var(--primary);
+        }
+        .result-val { font-size: 2rem; color: var(--primary); display: block; font-weight: bold; }
+        .target-info { font-size: 0.8rem; color: #888; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Creator Crown Tracker</h2>
+        
+        <div id="map-list">
+            <div class="map-entry">
+                <label>Map Name (Optional)</label>
+                <input type="text" placeholder="e.g. Escape the Tsunami">
+                <label>Total Players (Last 30 Days)</label>
+                <input type="number" class="players" placeholder="0" min="0">
+                <label>Avg Playtime (Minutes)</label>
+                <input type="number" class="avg-time" placeholder="0" step="0.1" min="0">
+            </div>
+        </div>
+
+        <button class="add-btn" onclick="addMapSlot()">+ Add More Map Slot</button>
+        <button class="calc-btn" onclick="calculateTotal()">Calculate Total Hours</button>
+
+        <div class="result-box">
+            <span style="color: #bbb;">Total Monthly Playtime:</span>
+            <span id="total-hours" class="result-val">0 Hours</span>
+            <p id="status-msg" class="target-info">Target for Crown: 1,00,000 Hours</p>
+        </div>
+    </div>
+
+    <script>
+        function addMapSlot() {
+            const list = document.getElementById('map-list');
+            const div = document.createElement('div');
+            div.className = 'map-entry';
+            div.innerHTML = `
+                <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
+                <label>Map Name (Optional)</label>
+                <input type="text" placeholder="Map Name">
+                <label>Total Players (Last 30 Days)</label>
+                <input type="number" class="players" placeholder="0" min="0">
+                <label>Avg Playtime (Minutes)</label>
+                <input type="number" class="avg-time" placeholder="0" step="0.1" min="0">
+            `;
+            list.appendChild(div);
+        }
+
+        function calculateTotal() {
+            const players = document.getElementsByClassName('players');
+            const avgTimes = document.getElementsByClassName('avg-time');
+            let totalMinutes = 0;
+
+            for (let i = 0; i < players.length; i++) {
+                let pCount = parseFloat(players[i].value) || 0;
+                let aTime = parseFloat(avgTimes[i].value) || 0;
+                totalMinutes += (pCount * aTime);
+            }
+
+            let totalHours = (totalMinutes / 60).toFixed(2);
+            document.getElementById('total-hours').innerText = Number(totalHours).toLocaleString() + " Hours";
+
+            // Status Check
+            const msg = document.getElementById('status-msg');
+            if (totalHours >= 100000) {
+                msg.innerText = "🎉 Congratulations! You hit the Crown Target!";
+                msg.style.color = "#28a745";
+            } else {
+                let remaining = (100000 - totalHours).toFixed(2);
+                msg.innerText = "Still need " + Number(remaining).toLocaleString() + " hours for Creator Crown.";
+                msg.style.color = "#888";
+            }
+        }
+    </script>
+
+</body>
+</html>
